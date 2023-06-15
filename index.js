@@ -1,9 +1,9 @@
 // user sign up backend // 
-
 import express from "express"
 import prisma from "./src/utils/prisma.js"
 import cors from 'cors';
 import { Prisma } from "@prisma/client";
+import bcrypt from "bcryptjs"
 
 const app = express()
 const port = process.env.PORT || 8080
@@ -49,21 +49,19 @@ function filter(obj, ...keys) {
 
 //post api to post data into database//
 app.post(`/user`, async (req, res) => {
-  const { name, email, password } = req.body
+  const data = req.body
 
   //validate input from user//
-  const validationErrors = validateUser({ name, email, password })
+  const validationErrors = validateUser(data)
 
   if (Object.keys(validationErrors).length != 0) return res.status(400).send({
     error: validationErrors
   })
 
+  //store password in hash//
+  data.password = bcrypt.hashSync(data.password, 8);
   const result = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password,
-    },
+    data,
   }).then(user => {
     //call the filter function to filter out the password.//
     return res.json(filter(user, 'id', 'name', 'email'))
