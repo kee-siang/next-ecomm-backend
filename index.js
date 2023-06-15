@@ -10,6 +10,30 @@ const port = process.env.PORT || 8080
 app.use(express.json())
 app.use(cors());
 
+//function for validation//
+function validateUser(input) {
+  const validationErrors = {}
+  if (!('name' in input) || input['name'].length == 0) {
+    validationErrors['name'] = 'cannot be blank'
+  }
+
+  if (!('email' in input) || input['email'].length == 0) {
+    validationErrors['email'] = 'cannot be blank'
+  }else if ('email' in input && !input['email'].match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) {
+    validationErrors['email'] = 'is invalid'
+  }
+
+  if (!('password' in input) || input['password'].length == 0) {
+    validationErrors['password'] = 'cannot be blank'
+  }
+
+  if ('password' in input && input['password'].length < 8) {
+    validationErrors['password'] = 'should be at least 8 characters'
+  }
+
+  return validationErrors;
+}
+
 // get data api//
 app.get('/', async (req, res) => {
   const posts = await prisma.user.findMany({
@@ -26,6 +50,14 @@ function filter(obj, ...keys) {
 //post api to post data into database//
 app.post(`/user`, async (req, res) => {
   const { name, email, password } = req.body
+
+  //validate input from user//
+  const validationErrors = validateUser({ name, email, password })
+
+  if (Object.keys(validationErrors).length != 0) return res.status(400).send({
+    error: validationErrors
+  })
+
   const result = await prisma.user.create({
     data: {
       name,
