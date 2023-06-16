@@ -34,18 +34,10 @@ function validateUser(input) {
   return validationErrors;
 }
 
-// get data api//
-app.get('/', async (req, res) => {
-  const posts = await prisma.user.findMany({
-  })
-  res.json(posts)
-})
-
 //function to filter out the password//
 function filter(obj, ...keys) {
   return keys.reduce((a, c) => ({ ...a, [c]: obj[c]}), {})
 }
-
 
 //post api to post data into database//
 app.post(`/user`, async (req, res) => {
