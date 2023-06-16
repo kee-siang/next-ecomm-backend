@@ -1,8 +1,8 @@
-// user sign up backend // 
+// user sign in backend // 
 import express from "express"
 import prisma from "./src/utils/prisma.js"
 import cors from 'cors';
-import { Prisma } from "@prisma/client";
+// import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs"
 
 const app = express()
@@ -10,73 +10,27 @@ const port = process.env.PORT || 8080
 app.use(express.json())
 app.use(cors());
 
-//function for validation//
-function validateUser(input) {
-  const validationErrors = {}
-  if (!('name' in input) || input['name'].length == 0) {
-    validationErrors['name'] = 'cannot be blank'
-  }
-
-  if (!('email' in input) || input['email'].length == 0) {
-    validationErrors['email'] = 'cannot be blank'
-  }else if ('email' in input && !input['email'].match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) {
-    validationErrors['email'] = 'is invalid'
-  }
-
-  if (!('password' in input) || input['password'].length == 0) {
-    validationErrors['password'] = 'cannot be blank'
-  }
-
-  if ('password' in input && input['password'].length < 8) {
-    validationErrors['password'] = 'should be at least 8 characters'
-  }
-
-  return validationErrors;
-}
-
-// get data api//
-app.get('/', async (req, res) => {
-  const posts = await prisma.user.findMany({
-  })
-  res.json(posts)
-})
-
-//function to filter out the password//
-function filter(obj, ...keys) {
-  return keys.reduce((a, c) => ({ ...a, [c]: obj[c]}), {})
-}
-
-
-//post api to post data into database//
-app.post(`/user`, async (req, res) => {
+//post /sign-in endpoint//
+app.post('/sign-in', async (req, res) => {
   const data = req.body
 
-  //validate input from user//
-  const validationErrors = validateUser(data)
-
-  if (Object.keys(validationErrors).length != 0) return res.status(400).send({
-    error: validationErrors
-  })
-
-  //store password in hash//
-  data.password = bcrypt.hashSync(data.password, 8);
-  const result = await prisma.user.create({
-    data,
-  }).then(user => {
-    //call the filter function to filter out the password.//
-    return res.json(filter(user, 'id', 'name', 'email'))
-  }).catch(err => {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-      const formattedError = {}
-      formattedError[`${err.meta.target[0]}`] = 'email already taken'
-
-      return res.status(500).send({
-        error: formattedError
-      });
+  //find respective email address in database to sign in//
+  const user = await prisma.user.findUnique({
+    where: {
+      email: data.email
     }
-    throw err
   })
   
+  //if the match input is not match with the email that store in the database, send error message//
+  if (!user) return res.status(401).send({
+    error: 'Email address or password not valid'
+  })
+
+  //check the password is match with database password, if not show error message//
+  const checkPassword = bcrypt.compareSync(data.password, user.password)
+  if (!checkPassword) return res.status(401).send({
+    error: 'Email address or password not valid'
+  })
 })
 
 app.listen(port, () => {
