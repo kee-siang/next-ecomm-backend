@@ -110,8 +110,8 @@ app.post('/sign-in', async (req, res) => {
   const user = await prisma.user.findUnique({
     where: {
       email: data.email
-    }
-  })
+    },
+  });
 
   //if user email is not correct, show this error message//
   if (!user) return res.status(401).send({
