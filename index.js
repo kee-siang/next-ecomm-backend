@@ -1,8 +1,12 @@
+
+// user sign up backend // 
+
 import express from "express"
 import prisma from "./src/utils/prisma.js"
 import cors from 'cors';
 import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs"
+
 import { signAccessToken } from "./src/utils/jwt.js"
 
 const app = express()
@@ -41,7 +45,8 @@ function filter(obj, ...keys) {
   return keys.reduce((a, c) => ({ ...a, [c]: obj[c] }), {})
 }
 
-//post endpoint to post data into database//
+//post api to post data into database//
+
 app.post(`/user`, async (req, res) => {
   const data = req.body
 
@@ -70,7 +75,6 @@ app.post(`/user`, async (req, res) => {
     }
     throw err
   })
-  
 })
 
 //Sign-in process backend//
