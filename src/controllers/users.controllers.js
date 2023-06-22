@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client"
 import prisma from "../utils/prisma.js"
 import { validateUser } from "../validators/users.js"
 import { filter } from "../utils/common.js"
+import { sendMail } from '../../sgQuickstart/Email.js'
 const router = express.Router()
 
 //Create user backend//
@@ -24,9 +25,15 @@ router.post(`/`, async (req, res) => {
   data.password = bcrypt.hashSync(data.password, 8);
   const result = await prisma.user.create({
     data,
+
   }).then(user => {
+
+    //send email to user once successfully sign up//
+    sendMail()
+
     //call the filter function to filter out the password.//
     return res.json(filter(user, 'id', 'name', 'email'))
+
   }).catch(err => {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       const formattedError = {}
