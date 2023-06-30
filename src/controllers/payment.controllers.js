@@ -7,6 +7,7 @@ const router = express.Router()
 
 router.post('/', async (req, res) => {
   const { imageId } = req.body; // Assuming the imageId is sent in the request body
+  console.log(imageId);
   try {
     const imageDetails = await prisma.image.findUnique({
       where: {
