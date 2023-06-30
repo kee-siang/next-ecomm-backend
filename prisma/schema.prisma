@@ -16,4 +16,15 @@ model User {
   name     String?
   email    String  @unique
   password String?
+  images   Image[]
+}
+
+model Image {
+  id          Int      @id @default(autoincrement())
+  fileUrl     String
+  price       String
+  title       String
+  description String
+  userId      Int      // Foreign key column
+  user        User     @relation(fields: [userId], references: [id])
 }
