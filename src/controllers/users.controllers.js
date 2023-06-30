@@ -5,12 +5,12 @@ import prisma from "../utils/prisma.js"
 import { validateUser } from "../validators/users.js"
 import { filter } from "../utils/common.js"
 import { sendMail } from '../../sgQuickstart/Email.js'
+
 const router = express.Router()
 
 //Create user backend//
 
 //post api to post data into database//
-
 router.post(`/`, async (req, res) => {
   const data = req.body
 
