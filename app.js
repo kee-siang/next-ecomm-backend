@@ -16,6 +16,7 @@ app.use('/auth', authRouter)
 app.use('/upload', imgRouter)
 app.use('/load', loadRouter)
 app.use('/create-checkout-session', checkoutRouter)
+
 // start added
 // app.get('/protected', auth, (req, res) => {
 //   res.json({ "hello": "world" })
