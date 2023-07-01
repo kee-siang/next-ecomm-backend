@@ -38,6 +38,7 @@ router.post('/', async (req, res) => {
         success_url: 'http://localhost:5173/success', // Replace with your success URL
         cancel_url: 'http://localhost:5173/cancel' // Replace with your cancel URL
       });
+
       return res.json(session.url);
     } else {
       // Image details not found
